@@ -59,11 +59,11 @@ export const nextAuthOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) { // eslint-disable-line no-unused-vars
-      if (account.providerAccountId !== null) { // Can be null in case of email
+      if (account?.providerAccountId !== null) { // Can be null in case of email
         await prisma.account.updateMany({
           where: {
-            provider: account.provider,
-            providerAccountId: account.providerAccountId,
+            provider: account?.provider,
+            providerAccountId: account?.providerAccountId,
           },
           data: {
             updatedAt: new Date().toISOString(), // Force set current timestamp
@@ -92,7 +92,7 @@ export const nextAuthOptions: NextAuthOptions = {
 
       await prisma.user.update({
         where: {
-          id: user.id,
+          id: Number(user.id),
         },
         data: {
           lastActivity: new Date().toISOString(),
@@ -101,12 +101,12 @@ export const nextAuthOptions: NextAuthOptions = {
 
       if (isInitiallyAdmin(user) && user.role !== UserRole.ADMINISTRATOR) {
         const newRole = UserRole.ADMINISTRATOR;
-        await prisma.user.update({ where: { id: user.id }, data: { role: newRole } });
+        await prisma.user.update({ where: { id: Number(user.id) }, data: { role: newRole } });
         user.role = newRole;
       }
 
       // We extend the `session` object to contain information about the permissions of the user
-      session.userId = user.id;
+      session.userId = Number(user.id);
       session.role = user.role;
       session.displayName = user.customName ? user.customName : user.name;
       session.displayEmail = user.customEmail ? user.customEmail : user.email;

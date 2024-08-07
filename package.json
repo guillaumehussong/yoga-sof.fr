@@ -38,7 +38,7 @@
     "date-fns": "^2.30.0",
     "ics": "^3.1.0",
     "next": "^13.3.4",
-    "next-auth": "4.6.1",
+    "next-auth": "^4.24.7",
     "next-type-safe-routes": "^0.3.1-alpha.1",
     "nodemailer": "^6.9.1",
     "notistack": "^3.0.1",
@@ -53,8 +53,8 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
-    "@types/pdfmake": "^0.2.2",
     "@types/nodemailer": "^6.4.7",
+    "@types/pdfmake": "^0.2.2",
     "@types/react-dom": "^18.2.3",
     "dotenv-cli": "^7.2.1",
     "eslint": "^8.39.0",
