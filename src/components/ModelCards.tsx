@@ -117,11 +117,13 @@ const ModelCard = <T extends InputIdentifier, TProcedureDelete extends Procedure
   );
 }
 
-const GridItem: React.FC = ({ children }) => (
-  <Grid item xs={12} sm={6} lg={4} xl={3} alignItems="stretch">
-    {children}
-  </Grid>
-);
+const GridItem: React.FC<{ children: React.ReactNode }> = function GridItem({ children }) {
+  return (
+    <Grid item xs={12} sm={6} lg={4} xl={3} alignItems="stretch">
+      {children}
+    </Grid>
+  );
+};
 
 interface ModelCardsProps<T extends InputIdentifier, TProcedureFindAll extends ProcedureQueryArray<T>, TProcedureDelete extends ProcedureMutateIdentifier> extends Omit<ModelCard<T, TProcedureDelete>, 'data'> {
   procedureFindAll: DecorateProcedure<TProcedureFindAll, any, any>;

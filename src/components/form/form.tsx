@@ -1,18 +1,18 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { z } from 'zod';
 import { DeepPartial, FormContainer, useFormState } from 'react-hook-form-mui';
-import { AppRouter } from '../../server/controllers';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Alert, Box, Button, CircularProgress, Grid } from '@mui/material';
 import { AddBox, Cancel, Save } from '@mui/icons-material';
 import { useRouter } from 'next/router';
-import { BackofficeContent } from '../layout/admin/BackofficeContent';
 import { ParsedUrlQuery } from 'querystring';
 import { ZodTypeDef } from 'zod/lib/types';
 import { SnackbarMessage, useSnackbar } from 'notistack';
 import { TRPCClientErrorLike } from '@trpc/client';
 import { AnyMutationProcedure, AnyQueryProcedure, inferProcedureInput, inferProcedureOutput } from '@trpc/server';
 import { DecorateProcedure } from '@trpc/react-query/dist/shared';
+import { BackofficeContent } from '../layout/admin/BackofficeContent';
+import { AppRouter } from '../../server/controllers';
 import { BackofficeContentLoading } from '../layout/admin/BackofficeContentLoading';
 import { DirtyFormUnloadAlert } from './fields/DirtyFormUnloadAlert';
 import { BackofficeContentError } from '../layout/admin/BackofficeContentError';
@@ -28,7 +28,7 @@ interface FormErrorAlertItemProps {
 const FormErrorAlertItem: React.FC<FormErrorAlertItemProps> = ({ serverError }) => {
   const { errors: clientErrors } = useFormState();
 
-  if (!serverError /*&& !clientErrors*/) {
+  if (!serverError /* && !clientErrors */) {
     return null;
   }
   // TODO
@@ -36,8 +36,8 @@ const FormErrorAlertItem: React.FC<FormErrorAlertItemProps> = ({ serverError }) 
   return (
     <Grid item xs={12}>
       <Alert severity="error">
-        {serverError ? (!!serverError.data && ('code' in serverError.data ?
-          serverError.message : 'zodError' in serverError.data ? 'Certains champs ne sont pas correctement remplis' : null)) ?? 'Une erreur est survenue' : (
+        {serverError ? (!!serverError.data && ('code' in serverError.data
+          ? serverError.message : 'zodError' in serverError.data ? 'Certains champs ne sont pas correctement remplis' : null)) ?? 'Une erreur est survenue' : (
           'Certains champs ne sont pas correctement remplis'
         )}
       </Alert>
@@ -80,7 +80,7 @@ interface InternalFormContentProps<TMutationProcedure extends AnyMutationProcedu
   error?: any;
 }
 
-const InternalFormContent = <TMutationProcedure extends AnyMutationProcedure>({
+function InternalFormContent<TMutationProcedure extends AnyMutationProcedure>({
   children,
   title,
   icon,
@@ -97,7 +97,7 @@ const InternalFormContent = <TMutationProcedure extends AnyMutationProcedure>({
   hiddenControls,
   isLoading: isQueryLoading,
   error: queryError,
-}: InternalFormContentProps<TMutationProcedure, inferProcedureOutput<TMutationProcedure>>) => {
+}: InternalFormContentProps<TMutationProcedure, inferProcedureOutput<TMutationProcedure>>) {
   const router = useRouter();
   const redirect: string | null = useMemo(() => {
     const parsed = formRedirectSchema.safeParse(router.query);
@@ -108,7 +108,7 @@ const InternalFormContent = <TMutationProcedure extends AnyMutationProcedure>({
   const { enqueueSnackbar } = useSnackbar();
 
   const { mutate, isLoading, error } = mutationProcedure.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       const invalidations = (invalidate ?? []).map(procedure => procedure.reset());
       return Promise.all([router.push(redirect ?? urlSuccessFor(data)), ...invalidations])
         .then(() => enqueueSnackbar(successMessage(data), { variant: 'success' }));
@@ -119,16 +119,14 @@ const InternalFormContent = <TMutationProcedure extends AnyMutationProcedure>({
     mutate(data);
   }, []);
 
-  const handleCancel = useCallback(() => {
-    return router.push(redirect ?? urlCancel);
-  }, []);
+  const handleCancel = useCallback(() => router.push(redirect ?? urlCancel), []);
 
   return !isQueryLoading ? (
     <BackofficeContent
       title={title}
       icon={icon}
     >
-      <FormContainer onSuccess={handleSubmit} resolver={zodResolver(schema)} defaultValues={defaultValues}>
+      <FormContainer onSuccess={handleSubmit} resolver={zodResolver(schema)} defaultValues={defaultValues as any}>
         {process.env.NODE_ENV === 'production' && ( // Disable this feature in development, as it slows down testing
           <DirtyFormUnloadAlert disabled={isLoading} message="Certaines modifications n'ont pas été sauvegardées, souhaitez-vous vraiment quitter la page ?" />
         )}
@@ -165,11 +163,11 @@ const InternalFormContent = <TMutationProcedure extends AnyMutationProcedure>({
   );
 }
 
-export const CreateFormContent = <TMutationProcedure extends AnyMutationProcedure>({ children, ...props }: CreateFormContentProps<TMutationProcedure>): JSX.Element => {
+export function CreateFormContent<TMutationProcedure extends AnyMutationProcedure>({ children, ...props }: CreateFormContentProps<TMutationProcedure>): JSX.Element {
   return (
     <InternalFormContent
       buttonLabel="Créer"
-      buttonIcon={<AddBox/>}
+      buttonIcon={<AddBox />}
       buttonColor="success"
       {...props}
       isLoading={false}
@@ -177,22 +175,22 @@ export const CreateFormContent = <TMutationProcedure extends AnyMutationProcedur
       {children}
     </InternalFormContent>
   );
-};
+}
 
-export const UpdateFormContent = <TQueryProcedure extends AnyQueryProcedure, TMutationProcedure extends AnyMutationProcedure, TQueryInputSchema extends z.ZodType<inferProcedureInput<TQueryProcedure>, ZodTypeDef, any>>({
+export function UpdateFormContent<TQueryProcedure extends AnyQueryProcedure, TMutationProcedure extends AnyMutationProcedure, TQueryInputSchema extends z.ZodType<inferProcedureInput<TQueryProcedure>, ZodTypeDef, any>>({
   children,
   defaultValues,
   queryProcedure,
   querySchema,
   queryParams,
   ...props
-}: UpdateFormContentProps<TQueryProcedure, TMutationProcedure, TQueryInputSchema>): JSX.Element => {
+}: UpdateFormContentProps<TQueryProcedure, TMutationProcedure, TQueryInputSchema>): JSX.Element {
   const parsed = querySchema.parse(queryParams); // TODO error handling
   const { data, isLoading, error } = queryProcedure.useQuery(parsed);
   return (
     <InternalFormContent
       buttonLabel="Sauvegarder"
-      buttonIcon={<Save/>}
+      buttonIcon={<Save />}
       buttonColor={undefined}
       {...props}
       isLoading={isLoading}
@@ -202,4 +200,4 @@ export const UpdateFormContent = <TQueryProcedure extends AnyQueryProcedure, TMu
       {children}
     </InternalFormContent>
   );
-};
+}
