@@ -36,9 +36,10 @@ export const nextAuthOptions: NextAuthOptions = {
   // This option is not strictly required since next-auth will look for the variable `NEXTAUTH_SECRET` anyway
   secret: process.env.NEXTAUTH_SECRET,
   session: {
-    // jwt: true, // FIXME
-    // maxAge: 30 * 24 * 60 * 60, // 30 days
-    // updateAge: 24 * 60 * 60, // 24 hours
+ /*    jwt: true,
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60, // 24 hours
+    jwt: true, */
   },
 
   // JSON Web tokens are only used for sessions if the `jwt: true` session
@@ -84,7 +85,6 @@ export const nextAuthOptions: NextAuthOptions = {
     async session({ session, user }) {
       // `session` is the shared object between the client and the server (client can read it but only the server can modify it)
       // `user` exactly corresponds to the data stored in the database under the model `User`
-
       const isAllowedToSignIn = !user.disabled;
       if (!isAllowedToSignIn) {
         throw new Error(); // Shouldn't happen?
@@ -116,7 +116,8 @@ export const nextAuthOptions: NextAuthOptions = {
     },
   },
   events: {},
-  debug: false,
+  // debug: false,
+  debug: true,
 };
 
 // For more information on each option (and a full list of options) go to
